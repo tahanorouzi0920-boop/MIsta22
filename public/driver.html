@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1f6feb">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <title>MISTA — راننده</title>
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    body{padding:16px;max-width:520px;margin:0 auto}
+    .row{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid rgba(127,127,127,.2)}
+    .ok{color:#16a34a}.bad{color:#dc2626}.warn{color:#d97706}
+    .big{width:100%;padding:16px;font-size:18px}
+  </style>
+</head>
+<body>
+  <div id="auth" class="card">
+    <h2>ورود راننده</h2>
+    <div class="field"><label for="u">کد ملی</label><input class="input" id="u" inputmode="numeric"></div>
+    <div class="field"><label for="p">رمز عبور</label><input class="input" id="p" type="password"></div>
+    <div id="authErr" class="err"></div>
+    <div class="acts"><button class="btn big" id="loginBtn" type="button">ورود</button></div>
+    <hr>
+    <h3>ثبت‌نام راننده</h3>
+    <p class="note">پس از ثبت‌نام، مدیر سامانه حساب شما را تایید می‌کند.</p>
+    <div class="row2">
+      <div class="field"><label for="fn">نام</label><input class="input" id="fn"></div>
+      <div class="field"><label for="ln">نام خانوادگی</label><input class="input" id="ln"></div>
+      <div class="field"><label for="nid">کد ملی</label><input class="input" id="nid" inputmode="numeric"></div>
+      <div class="field"><label for="mob">موبایل</label><input class="input" id="mob" inputmode="tel" placeholder="09121234567"></div>
+      <div class="field"><label for="gen">جنسیت</label><select class="input" id="gen"><option value="">—</option><option>مرد</option><option>زن</option></select></div>
+      <div class="field"><label for="np">رمز عبور (حداقل ۸ نویسه)</label><input class="input" id="np" type="password"></div>
+    </div>
+    <div id="regErr" class="err"></div>
+    <div class="acts"><button class="btn ghost" id="regBtn" type="button">ثبت‌نام</button></div>
+  </div>
+
+  <div id="app" class="card" style="display:none">
+    <h2 id="who"></h2>
+    <div class="row"><span>سفر</span><span id="trip">—</span></div>
+    <div class="row"><span>وضعیت موقعیت مکانی (GPS)</span><span id="gps">منتظر اجازه</span></div>
+    <div class="row"><span>اتصال اینترنت</span><span id="net">—</span></div>
+    <div class="row"><span>آخرین ارسال موفق</span><span id="last">—</span></div>
+    <div class="row"><span>موقعیت‌های ذخیره‌شده در گوشی</span><span id="queue">۰</span></div>
+    <div class="row"><span>روشن ماندن صفحه</span><span id="wake">—</span></div>
+    <p id="msg" class="note"></p>
+    <div class="acts"><button class="btn big" id="gpsBtn" type="button">اجازه موقعیت مکانی و شروع ارسال</button></div>
+    <div class="acts"><button class="btn ghost" id="stopBtn" type="button">توقف ارسال</button><button class="btn ghost" id="outBtn" type="button">خروج</button></div>
+    <p class="note">ارسال موقعیت فقط در زمان سفر فعال شما انجام می‌شود. اگر صفحه بسته شود یا گوشی قفل شود، مرورگر ممکن است ارسال را متوقف کند.</p>
+  </div>
+
+  <script>
+  (function () {
+    var QUEUE_KEY = 'mista_driver_queue', QUEUE_MAX = 300;
+    var watchId = null, lastSent = 0, pollTimer = null, wakeLock = null, trip = null, flushing = false;
+    function $(id) { return document.getElementById(id); }
+    function queue() { try { return JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]'); } catch (e) { return []; } }
+    function setQueue(q) { try { localStorage.setItem(QUEUE_KEY, JSON.stringify(q.slice(-QUEUE_MAX))); } catch (e) { /* storage unavailable */ } $('queue').textContent = String(queue().length); }
+    function say(t, cls) { $('msg').textContent = t; $('msg').className = 'note ' + (cls || ''); }
+    function api(method, url, body) {
+      return fetch(url, { method: method, credentials: 'same-origin', headers: body ? { 'Content-Type': 'application/json' } : {}, body: body ? JSON.stringify(body) : undefined })
+        .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { status: r.status, j: j }; }); });
+    }
+    function showAuth(msg) { $('auth').style.display = ''; $('app').style.display = 'none'; if (msg) $('authErr').textContent = msg; }
+    function showApp() { $('auth').style.display = 'none'; $('app').style.display = ''; }
+    function netState() { $('net').textContent = navigator.onLine ? 'برقرار' : 'قطع'; $('net').className = navigator.onLine ? 'ok' : 'bad'; }
+    function refreshTrip() {
+      return api('GET', '/api/driver/me').then(function (x) {
+        if (x.status === 401) { stopAll(); showAuth('نشست شما پایان یافته است؛ دوباره وارد شوید.'); return; }
+        if (x.status === 403) { showAuth('این حساب راننده نیست.'); return; }
+        if (x.status !== 200) return;
+        $('who').textContent = 'راننده: ' + x.j.name;
+        trip = x.j.trip;
+        $('trip').textContent = trip ? (trip.planName + ' (' + trip.planCode + ')') : 'سفر فعالی نیست';
+        $('trip').className = trip ? 'ok' : 'warn';
+        if (!trip && watchId !== null) say('سفر فعالی برای شما نیست؛ موقعیت ارسال نمی‌شود تا سفر شروع شود.', 'warn');
+      });
+    }
+    function sendOne(item) { return api('POST', '/api/driver/location', item); }
+    function flush() {
+      if (flushing) return Promise.resolve();
+      flushing = true;
+      function next() {
+        var q = queue();
+        if (!q.length || !navigator.onLine) { flushing = false; return Promise.resolve(); }
+        return sendOne(q[0]).then(function (x) {
+          if (x.status === 201 || x.status === 422) { q.shift(); setQueue(q); $('last').textContent = new Date().toLocaleTimeString('fa-IR'); $('last').className = 'ok'; return next(); }
+          if (x.status === 409) { setQueue([]); say('سفر شما پایان یافته یا فعال نیست؛ موقعیت‌های ذخیره‌شده حذف شدند.', 'warn'); flushing = false; return refreshTrip(); }
+          if (x.status === 401) { stopAll(); showAuth('نشست شما پایان یافته است؛ دوباره وارد شوید.'); flushing = false; return; }
+          flushing = false; return; // 429 or server error: keep the queue and try again later
+        }).catch(function () { flushing = false; });
+      }
+      return next();
+    }
+    function onPosition(pos) {
+      $('gps').textContent = 'فعال'; $('gps').className = 'ok';
+      if (!trip) return;
+      var now = Date.now();
+      var q = queue(); q.push({ lat: pos.coords.latitude, lng: pos.coords.longitude, accuracy: pos.coords.accuracy, at: now }); setQueue(q);
+      if (now - lastSent < 1000) return;
+      lastSent = now;
+      flush();
+    }
+    function onGpsError(e) {
+      if (e.code === 1) { $('gps').textContent = 'اجازه داده نشده'; $('gps').className = 'bad'; stopAll(); say('دسترسی به موقعیت مکانی داده نشد. آن را در تنظیمات مرورگر گوشی فعال کنید و دوباره شروع کنید.', 'bad'); return; }
+      $('gps').textContent = e.code === 2 ? 'خاموش است' : 'دریافت نشد'; $('gps').className = 'warn';
+      say(e.code === 2 ? 'مکان‌یابی گوشی خاموش است. لطفاً آن را روشن کنید؛ ارسال خودکار ادامه می‌یابد.' : 'موقعیت دریافت نشد؛ دوباره تلاش می‌شود.', 'warn');
+    }
+    function keepScreenOn() {
+      if (!('wakeLock' in navigator)) { $('wake').textContent = 'پشتیبانی نمی‌شود'; $('wake').className = 'warn'; return; }
+      navigator.wakeLock.request('screen').then(function (wl) { wakeLock = wl; $('wake').textContent = 'فعال'; $('wake').className = 'ok'; wl.addEventListener('release', function () { $('wake').textContent = 'آزاد شد'; $('wake').className = 'warn'; }); })
+        .catch(function () { $('wake').textContent = 'رد شد'; $('wake').className = 'warn'; });
+    }
+    function startAll() {
+      if (!navigator.geolocation) { say('این مرورگر موقعیت مکانی را پشتیبانی نمی‌کند.', 'bad'); return; }
+      // Asking once with getCurrentPosition shows the permission prompt before the continuous watch starts.
+      navigator.geolocation.getCurrentPosition(function (pos) {
+        onPosition(pos);
+        if (watchId === null) watchId = navigator.geolocation.watchPosition(onPosition, onGpsError, { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 });
+        keepScreenOn();
+        say('ارسال موقعیت شروع شد.', 'ok');
+      }, onGpsError, { enableHighAccuracy: true, timeout: 15000 });
+      if (!pollTimer) pollTimer = setInterval(function () { refreshTrip(); flush(); }, 5000);
+    }
+    function stopAll() {
+      if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+      watchId = null;
+      if (wakeLock) { wakeLock.release().catch(function () {}); wakeLock = null; }
+      if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+    }
+    document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible' && watchId !== null) keepScreenOn(); });
+    window.addEventListener('online', function () { netState(); flush(); });
+    window.addEventListener('offline', netState);
+    $('loginBtn').onclick = function () {
+      $('authErr').textContent = '';
+      api('POST', '/api/login', { username: $('u').value.trim(), password: $('p').value }).then(function (x) {
+        if (x.status === 200) return refreshTrip().then(showApp);
+        if (x.status === 403) return showAuth(x.j.error || 'حساب شما فعال نیست.');
+        if (x.status === 401) return showAuth('کد ملی یا رمز عبور نادرست است.');
+        showAuth(x.j.error || 'ورود ناموفق بود.');
+      });
+    };
+    $('regBtn').onclick = function () {
+      $('regErr').textContent = '';
+      api('POST', '/api/driver-signup', { first: $('fn').value.trim(), last: $('ln').value.trim(), nid: $('nid').value.trim(), mobile: $('mob').value.trim(), gender: $('gen').value, password: $('np').value }).then(function (x) {
+        if (x.status === 201) { $('regErr').className = 'note ok'; $('regErr').textContent = x.j.message; return; }
+        var f = x.j.fields ? Object.keys(x.j.fields).map(function (k) { return x.j.fields[k]; }).join(' — ') : '';
+        $('regErr').className = 'err'; $('regErr').textContent = f || x.j.error || 'ثبت‌نام ناموفق بود.';
+      });
+    };
+    $('gpsBtn').onclick = startAll;
+    $('stopBtn').onclick = function () { stopAll(); $('gps').textContent = 'متوقف'; $('gps').className = ''; say('ارسال متوقف شد.'); };
+    $('outBtn').onclick = function () { stopAll(); api('POST', '/api/logout', {}).then(function () { showAuth(''); }); };
+    netState(); setQueue(queue());
+    // A returning driver with an open session goes straight to the status page.
+    api('GET', '/api/driver/me').then(function (x) { if (x.status === 200) { refreshTrip().then(showApp); } });
+  })();
+  </script>
+</body>
+</html>

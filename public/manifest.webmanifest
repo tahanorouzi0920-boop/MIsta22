@@ -1,0 +1,10 @@
+{
+  "name": "MISTA — ارسال موقعیت راننده",
+  "short_name": "MISTA",
+  "lang": "fa",
+  "dir": "rtl",
+  "start_url": "/track.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1f6feb"
+}

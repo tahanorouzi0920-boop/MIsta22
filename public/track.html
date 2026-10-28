@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1f6feb">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <title>ارسال موقعیت راننده — MISTA</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body style="padding:20px;max-width:520px;margin:0 auto">
+  <div class="card">
+    <h2>ارسال موقعیت راننده</h2>
+    <p class="note">موقعیت این دستگاه فقط در زمان سفر تاییدشده و شروع‌شده ارسال می‌شود. با پایان سفر، ارسال خودکار متوقف می‌شود.</p>
+    <p id="status" class="note">برای شروع دکمه را بزنید.</p>
+    <p id="conn" class="note"></p>
+    <p class="note">نکته: مرورگر موقعیت مکانی را فقط روی اتصال امن (HTTPS) می‌دهد. ارسال در پس‌زمینه یا هنگام قفل بودن گوشی تضمین نمی‌شود.</p>
+    <div class="acts"><button class="btn" id="start" type="button">شروع ارسال موقعیت</button><button class="btn ghost" id="stop" type="button" disabled>توقف</button></div>
+  </div>
+  <script>
+    (function () {
+      var token = location.hash.replace(/^#/, '');
+      var status = document.getElementById('status'), conn = document.getElementById('conn');
+      var startBtn = document.getElementById('start'), stopBtn = document.getElementById('stop');
+      var QUEUE_KEY = 'mista_gps_queue', QUEUE_MAX = 200;
+      var watchId = null, lastSent = 0, timer = null, statusTimer = null;
+      function checkTrip() {
+        fetch('/api/driver-track/status?token=' + encodeURIComponent(token)).then(function (r) {
+          if (r.status === 409) stopTracking('سفر فعالی برای این راننده نیست؛ ارسال موقعیت متوقف شد.');
+        }).catch(function () { /* offline: positions are kept and the check runs again */ });
+      }
+      function say(t) { status.textContent = t; }
+      function readQueue() { try { return JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]'); } catch (e) { return []; } }
+      function writeQueue(q) { try { localStorage.setItem(QUEUE_KEY, JSON.stringify(q.slice(-QUEUE_MAX))); } catch (e) { /* storage full or disabled */ } }
+      function updateConn() { conn.textContent = navigator.onLine ? 'اتصال اینترنت برقرار است.' : 'اینترنت قطع است؛ موقعیت‌ها موقتاً ذخیره می‌شوند.'; }
+      function post(item) {
+        return fetch('/api/driver-track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(item) })
+          .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { status: r.status, j: j }; }); });
+      }
+      function flush() {
+        var q = readQueue();
+        if (!q.length) return Promise.resolve();
+        var item = q[0];
+        return post(item).then(function (x) {
+          if (x.status === 201 || x.status === 422) { q.shift(); writeQueue(q); return flush(); }
+          if (x.status === 409) { writeQueue([]); stopTracking('سفر پایان یافته است؛ ارسال موقعیت متوقف شد.'); return null; }
+          return null;
+        }).catch(function () { return null; });
+      }
+      function send(pos) {
+        var item = { token: token, lat: pos.coords.latitude, lng: pos.coords.longitude, accuracy: pos.coords.accuracy, at: Date.now() };
+        var q = readQueue(); q.push(item); writeQueue(q);
+        if (Date.now() - lastSent < 1000) return;
+        lastSent = Date.now();
+        flush().then(function (r) {
+          if (r === null) { say('ارسال انجام نشد؛ موقعیت در دستگاه ذخیره شد (' + readQueue().length + ' مورد).'); return; }
+          var last = readQueue();
+          if (!last.length) say('آخرین موقعیت ارسال شد: ' + new Date().toLocaleTimeString('fa-IR'));
+        });
+      }
+      function stopTracking(message) {
+        if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+        if (statusTimer) clearInterval(statusTimer);
+        statusTimer = null; watchId = null; startBtn.disabled = false; stopBtn.disabled = true;
+        if (message) say(message);
+      }
+      if (!token) { say('لینک ردیابی در آدرس صفحه وجود ندارد. لینک تازه را از مدیر سامانه بگیرید.'); startBtn.disabled = true; return; }
+      window.addEventListener('online', function () { updateConn(); flush(); });
+      window.addEventListener('offline', updateConn);
+      updateConn();
+      // A position is only accepted while a trip is started; the server tells us when the trip has ended.
+      timer = setInterval(function () {
+        if (watchId === null) return;
+        if (readQueue().length && navigator.onLine) flush();
+      }, 5000);
+      startBtn.onclick = function () {
+        if (!navigator.geolocation) { say('این مرورگر موقعیت مکانی را پشتیبانی نمی‌کند.'); return; }
+        // The watch keeps running through errors. Only a refused permission stops it; a location-off error is reported and the watch continues.
+        watchId = navigator.geolocation.watchPosition(send, function (e) {
+          if (e.code === 1) { stopTracking('دسترسی به موقعیت مکانی داده نشد. آن را در تنظیمات مرورگر فعال کنید.'); return; }
+          say(e.code === 2 ? 'لوکیشن گوشی خاموش است. لطفاً موقعیت مکانی را روشن کنید؛ ارسال خودکار ادامه می‌یابد.' : 'موقعیت دریافت نشد؛ دوباره تلاش می‌شود.');
+        }, { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 });
+        startBtn.disabled = true; stopBtn.disabled = false; say('در حال دریافت موقعیت…');
+        // Ask the server once whether a trip is active, so the phone shows the right state immediately.
+        checkTrip();
+        if (statusTimer) clearInterval(statusTimer);
+        statusTimer = setInterval(checkTrip, 15000);
+      };
+      stopBtn.onclick = function () { stopTracking('ارسال متوقف شد.'); };
+    })();
+  </script>
+</body>
+</html>

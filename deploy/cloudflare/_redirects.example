@@ -1,0 +1,4 @@
+# Cloudflare Pages: copy this file to public/_redirects and replace the host with the real backend URL.
+# Static files in public/ are served first; every /api/* request is proxied to the Node backend.
+# Same origin for the browser, so the SameSite=Strict session cookie is sent.
+/api/*  https://YOUR-BACKEND-HOST/api/:splat  200

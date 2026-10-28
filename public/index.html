@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MISTA | میستا</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body data-theme="glass">
+
+<section id="login">
+  <header class="lg-top">
+    <div class="lg-brand"><span class="lg-logo">M</span><div><b>سامانه میستا</b><small>MISTA | Mehrgasht Integrated Systems for Transport and Automation</small></div></div>
+    <button type="button" id="bgToggle" class="lg-bg" aria-label="تغییر پس‌زمینه">پس‌زمینه: <span id="bgName">تیره</span></button>
+  </header>
+  <div class="lg-wrap">
+    <aside class="lg-hero" aria-label="معرفی سامانه">
+      <span class="lg-badge">مدیریت ترابری و اداری سازمانی</span>
+      <h2>سامانه یکپارچه مدیریت ترابری، منابع انسانی و اتوماسیون اداری</h2>
+      <p>مدیریت رانندگان و خودروها، سرویس‌های ثابت و کاربرگی، پرونده پرسنلی، مرخصی و مأموریت، مکاتبات اداری و گزارش‌ها در یک سامانه.</p>
+      <div class="lg-cards">
+        <div class="lg-card"><b>ترابری و رانندگان</b><span>خودرو، راننده، مدارک و شیفت‌ها</span></div>
+        <div class="lg-card"><b>سرویس‌ها و مسافران</b><span>سرویس ثابت، درخواست کاربرگی و حضور مسافران</span></div>
+        <div class="lg-card"><b>منابع انسانی</b><span>پرونده پرسنلی، مرخصی و مأموریت</span></div>
+        <div class="lg-card"><b>اتوماسیون اداری</b><span>مکاتبات، اطلاعیه‌ها، کارها و گزارش‌ها</span></div>
+      </div>
+    </aside>
+    <div class="lg-panel">
+      <div class="card login-box">
+        <h1 class="lg-title">ورود به حساب کاربری</h1>
+        <p class="lg-sub">لطفاً نام کاربری و رمز عبور خود را وارد کنید.</p>
+        <form id="loginForm" novalidate>
+          <div class="field"><label for="lu">نام کاربری</label><input class="input" id="lu" autocomplete="username"><div class="err" id="lu-e"></div></div>
+          <div class="field"><label for="lp">رمز عبور</label>
+            <div class="pw"><input class="input" id="lp" type="password" autocomplete="current-password"><button type="button" id="togglePw">نمایش</button></div>
+            <div class="err" id="lp-e"></div></div>
+          <button class="btn" id="loginBtn" type="submit">ورود</button>
+          <p class="err" id="login-e"></p>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="app" class="hidden">
+  <aside>
+    <div class="brand"><h1>MISTA</h1><p>Mehrgasht Integrated Systems for Transport and Automation</p></div>
+    <nav id="nav">
+      <button data-page="dashboard" class="active">داشبورد</button>
+      <button class="solo" data-page="profile">پروفایل</button>
+      <div class="grp">اتوماسیون اداری</div>
+      <button data-page="personnel" data-sec="personnel">پرونده پرسنلی</button>
+      <button data-page="letters" data-sec="letters">نامه‌ها</button>
+      <button data-page="absences" data-sec="absences">غیبت و مرخصی</button>
+      <button data-page="departments" data-sec="users">واحدها</button>
+      <button data-page="inbox">کارتابل من</button>
+      <button data-page="announcements" data-sec="announcements">تابلو اعلانات</button>
+      <button data-page="tasks" data-sec="tasks">کارها و وظایف</button>
+      <button data-page="meetings" data-sec="meetings">جلسات</button>
+      <button data-page="archive" data-sec="archive">مستندات</button>
+      <button data-page="leave" data-sec="absences">مرخصی و مأموریت</button>
+      <div class="grp">مدیریت سیستم</div>
+      <button data-page="users" data-sec="users">کاربران</button>
+      <button data-page="settings" data-sec="users">تنظیمات سیستم</button>
+      <div class="grp">اطلاعات پایه</div>
+      <button data-page="companies" data-sec="companies">شرکت‌ها</button>
+      <button data-page="vsup" data-sec="vehicles" data-mode="manage">سایت‌ها و واحد نظارت</button>
+      <div class="grp">ترابری و اداری رانندگان</div>
+      <button data-page="contracts" data-sec="contracts">قرارداد خودرو</button>
+      <div class="grp">ایمنی و بهداشت</div>
+      <div class="grp sub">خودرو</div>
+      <button data-page="vehicles" data-sec="vehicles">اطلاعات اصلی</button>
+      <button data-page="vdriver" data-sec="contracts">راننده</button>
+      <button data-page="vehicledocs" data-sec="documents">مدارک خودرو</button>
+      <button data-page="vshifts" data-sec="vehicles">شیفت‌های خودرو</button>
+      <button data-page="vsup" data-sec="vehicles">واحد نظارت</button>
+      <div class="grp">سرویس‌های ثابت</div>
+      <button data-page="newservice" data-sec="vehicles">تعریف سرویس جدید</button>
+      <button data-page="vservices" data-sec="vehicles">لیست سرویس‌ها</button>
+      <button data-page="trips" data-sec="vehicles">لیست سفرها</button>
+      <button data-page="tripapproval" data-sec="vehicles">تایید وضعیت سفر</button>
+      <button data-page="monitor" data-sec="vehicles">مانیتورینگ سفر</button>
+      <div class="grp">سرویس‌های کاربرگی</div>
+      <button data-page="requests" data-sec="requests">درخواست‌ها</button>
+      <div class="grp">اطلاعات مسافران</div>
+      <button data-page="passengers" data-sec="passengers">مسافران و حضور</button>
+      <div class="grp">مالی</div>
+      <button data-page="finance" data-sec="finance">درآمد و هزینه</button>
+      <button class="solo" data-page="reports" data-sec="reports">گزارشات</button>
+      <button class="solo" id="logout">خروج</button>
+    </nav>
+    <div id="verTag" class="note" style="padding:8px 12px"></div>
+  </aside>
+  <main>
+    <header class="top">
+      <h2 id="title">داشبورد</h2>
+      <div class="themes">
+        <button data-theme-btn="glass" class="on">Glass</button>
+        <button data-theme-btn="dark">Dark</button>
+        <button data-theme-btn="light">Light</button>
+      </div>
+    </header>
+
+    <section data-view="dashboard">
+      <div class="toolbar">
+        <div class="themes" id="dashRanges">
+          <button data-act="range" data-v="today">امروز</button>
+          <button data-act="range" data-v="7">۷ روز اخیر</button>
+          <button data-act="range" data-v="30" class="on">۳۰ روز اخیر</button>
+          <button data-act="range" data-v="90">۹۰ روز اخیر</button>
+          <button data-act="range" data-v="custom">بازه دلخواه</button>
+        </div>
+        <div id="dashCustom" class="hidden" style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end"><div id="dfWrap" style="display:flex;gap:8px"></div></div>
+        <div style="margin-inline-start:auto;display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn sm" data-act="qa-company" data-need="companies.create">+ شرکت</button>
+          <button class="btn sm" data-act="qa-contract" data-need="contracts.create">+ قرارداد</button>
+          <button class="btn sm" data-act="qa-driver" data-need="drivers.create">+ راننده</button>
+          <button class="btn sm" data-act="qa-vehicle" data-need="vehicles.create">+ خودرو</button>
+        </div>
+      </div>
+      <div class="grid stats" id="kpis"></div>
+      <div class="two">
+        <div class="card" data-sec="contracts"><h4>قراردادهای ثبت‌شده در بازه (به تفکیک ماه شمسی)</h4><div id="chSeries"></div></div>
+        <div class="card" data-sec="contracts"><h4>وضعیت قراردادها (کل داده‌ها)</h4><div id="chStatus"></div></div>
+      </div>
+      <div class="two">
+        <div class="card" data-sec="vehicles"><h4>خودروها بر اساس برند (کل داده‌ها)</h4><div id="chBrand"></div></div>
+        <div class="card" data-sec="companies"><h4>شرکت‌ها بر اساس استان (کل داده‌ها)</h4><div id="chProv"></div></div>
+      </div>
+      <div class="two">
+        <div class="card" data-sec="reports"><h4>فعالیت کاربران در بازه</h4><div id="chUsers"></div></div>
+        <div class="card" data-sec="reports"><h4>فعالیت‌های اخیر</h4><ul class="rl" id="recent"></ul></div>
+      </div>
+      <div class="two">
+        <div class="card"><h4>هشدارها</h4><div id="alerts"></div></div>
+      </div>
+    </section>
+
+    <section data-view="companies" class="hidden">
+      <div class="card">
+        <div class="toolbar"><input class="input" id="cSearch" placeholder="جستجوی شرکت…"><button class="btn" data-act="add-company" data-need="companies.create">+ شرکت جدید</button></div>
+        <div class="tw"><table><thead><tr><th>کد</th><th>نام</th><th>نوع</th><th>استان</th><th>شهر</th><th>موبایل</th><th></th></tr></thead><tbody id="cBody"></tbody></table></div>
+      </div>
+    </section>
+
+    <section data-view="drivers" class="hidden">
+      <div class="card">
+        <div class="toolbar"><input class="input" id="dSearch" placeholder="جستجو: نام، کد ملی یا موبایل…"><button class="btn" data-act="add-driver" data-need="drivers.create">+ راننده جدید</button></div>
+        <div class="tw"><table><thead><tr><th>نام و نام خانوادگی</th><th>کد ملی</th><th>موبایل</th><th>جنسیت</th><th>شروع همکاری</th><th></th></tr></thead><tbody id="dBody"></tbody></table></div>
+      </div>
+    </section>
+
+    <section data-view="vehicles" class="hidden">
+      <div class="card">
+        <div class="toolbar"><input class="input" id="vSearch" placeholder="جستجو: پلاک، برند یا مدل…"><button class="btn" data-act="add-vehicle" data-need="vehicles.create">+ خودرو جدید</button></div>
+        <div class="tw"><table><thead><tr><th>پلاک</th><th>برند</th><th>مدل</th><th>دسته / کلاس</th><th>سال</th><th>ظرفیت</th><th>کاربری</th><th></th></tr></thead><tbody id="vBody"></tbody></table></div>
+      </div>
+    </section>
+
+    <section data-view="contracts" class="hidden">
+      <div class="card">
+        <div class="toolbar"><input class="input" id="kSearch" placeholder="جستجو: شماره قرارداد، پلاک یا راننده…"><button class="btn" data-act="add-contract" data-need="contracts.create">+ قرارداد جدید</button></div>
+        <div class="tw"><table><thead><tr><th>شماره قرارداد</th><th>شرکت</th><th>راننده</th><th>پلاک</th><th>شروع</th><th>پایان</th><th>وضعیت</th><th></th></tr></thead><tbody id="kBody"></tbody></table></div>
+      </div>
+    </section>
+
+    <section data-view="documents" data-sec="documents" class="hidden">
+      <div class="card">
+        <div class="toolbar">
+          <button class="btn" data-act="add-document" data-need="documents.create">+ بارگذاری مدرک راننده</button>
+          <div class="field" style="flex:1;min-width:240px"><label for="mDrv">فیلتر بر اساس راننده (اختیاری)</label><select class="input" id="mDrv"></select></div>
+        </div>
+        <p class="empty hidden" id="mNote"></p>
+        <div id="mArea">
+          <div class="toolbar">
+            <input class="input" id="mSearch" placeholder="جستجوی نام مدرک…">
+            <select class="input" id="mCat"><option value="">همه دسته‌ها</option></select>
+            <select class="input" id="mStatus"><option value="">همه وضعیت‌ها</option><option value="none">بارگذاری نشده</option><option value="pending">نیازمند بررسی</option><option value="approved">تأیید شده</option><option value="rejected">رد شده</option><option value="expired">منقضی شده</option><option value="na">اعمال نمی‌شود</option></select>
+            <select class="input" id="mExpiry"><option value="">همه انقضاها</option><option value="soon">نزدیک انقضا (۳۰ روز)</option><option value="expired">منقضی‌شده</option></select>
+          </div>
+          <div class="tw"><table><thead><tr><th>راننده</th><th>نوع مدرک</th><th>دسته</th><th>تاریخ صدور</th><th>انقضا</th><th>قرارداد</th><th>وضعیت</th><th></th></tr></thead><tbody id="mBody"></tbody></table></div>
+          <div class="pager" id="mPager"></div>
+        </div>
+      </div>
+    </section>
+    <section data-view="vehicledocs" data-sec="documents" class="hidden">
+      <div class="card">
+        <div class="toolbar">
+          <button class="btn" data-act="add-vdoc" data-need="documents.create">+ بارگذاری مدرک خودرو</button>
+          <div class="field" style="flex:1;min-width:240px"><label for="vdVeh">فیلتر بر اساس خودرو (اختیاری)</label><select class="input" id="vdVeh"></select></div>
+        </div>
+        <p class="empty hidden" id="vdNote"></p>
+                <div id="vdArea">
+          <div class="toolbar">
+            <input class="input" id="vdSearch" placeholder="جستجوی نام مدرک…">
+            <select class="input" id="vdCat"><option value="">همه دسته‌ها</option></select>
+            <select class="input" id="vdStatus"><option value="">همه وضعیت‌ها</option><option value="none">بارگذاری نشده</option><option value="pending">نیازمند بررسی</option><option value="approved">تأیید شده</option><option value="rejected">رد شده</option><option value="expired">منقضی شده</option><option value="na">اعمال نمی‌شود</option></select>
+            <select class="input" id="vdExpiry"><option value="">همه انقضاها</option><option value="soon">نزدیک انقضا (۳۰ روز)</option><option value="expired">منقضی‌شده</option></select>
+          </div>
+          <div class="tw"><table><thead><tr><th>خودرو</th><th>نوع مدرک</th><th>دسته</th><th>تاریخ صدور</th><th>انقضا</th><th>قرارداد</th><th>وضعیت</th><th></th></tr></thead><tbody id="vdBody"></tbody></table></div>
+          <div class="pager" id="vdPager"></div>
+        </div>
+      </div>
+    </section>
+
+    <section data-view="doctypes" class="hidden">
+      <div class="card">
+        <div class="toolbar"><span class="note" style="flex:1">الزامی بودن هر مدرک را فقط مدیر تعیین می‌کند؛ پیش‌فرض همه مدارک اختیاری است.</span><button class="btn" data-act="add-doctype" data-need="doctypes.create">+ نوع مدرک جدید</button></div>
+        <div class="tw"><table><thead><tr><th>نام</th><th>دسته</th><th>مالک</th><th>الزامی</th><th>فعال</th><th></th></tr></thead><tbody id="tBody"></tbody></table></div>
+      </div>
+    </section>
+
+    <section data-view="absences" data-sec="absences" class="hidden">
+      <div class="card">
+        <div class="toolbar"><input class="input" id="aSearch" placeholder="جستجوی نام کاربر یا نوع ثبت…"><button class="btn" data-act="add-absence" data-need="absences.create">+ ثبت غیبت یا مرخصی</button></div>
+        <div class="tw"><table><thead><tr><th>کاربر</th><th>نوع</th><th>از تاریخ</th><th>ساعت</th><th>تا تاریخ</th><th>ساعت پایان</th><th>توضیحات</th><th></th></tr></thead><tbody id="aBody"></tbody></table></div>
+      </div>
+    </section>
+
+    <section data-view="vdriver" data-sec="contracts" class="hidden">
+      <div class="card"><div class="toolbar"><input class="input" id="vdSearch2" placeholder="جستجوی پلاک، برند یا نام راننده…"></div>
+        <div class="tw"><table><thead><tr><th>پلاک</th><th>برند و مدل</th><th>راننده فعلی</th><th>قرارداد</th><th>بازه</th></tr></thead><tbody id="vdrvBody"></tbody></table></div></div>
+    </section>
+    <section data-view="vsup" data-sec="vehicles" class="hidden">
+      <div class="card">
+        <div class="sec">سایت‌ها</div>
+        <div class="toolbar"><input class="input" id="supSiteSearch" placeholder="جستجوی کد یا نام سایت…"><button class="btn" data-act="add-site" data-need="vehicles.create" data-manage>+ سایت جدید</button></div>
+        <div class="tw"><table><thead><tr><th>کد سایت</th><th>نام سایت</th><th>وضعیت</th><th></th></tr></thead><tbody id="supSitesBody"></tbody></table></div>
+      </div>
+      <div class="card">
+        <div class="sec">واحدهای نظارت</div>
+        <div class="toolbar"><input class="input" id="supUnitSearch" placeholder="جستجوی کد یا نام واحد نظارت…"><select class="input" id="supUnitSite"></select><button class="btn" data-act="add-unit" data-need="vehicles.create" data-manage>+ واحد نظارت جدید</button></div>
+        <div class="tw"><table><thead><tr><th>کد واحد</th><th>نام واحد</th><th>کد سایت</th><th>نام سایت</th><th>وضعیت</th><th></th></tr></thead><tbody id="supUnitsBody"></tbody></table></div>
+      </div>
+    </section>
+    <section data-view="vshifts" data-sec="vehicles" class="hidden">
+      <div class="card"><div class="toolbar"><input class="input" id="vshSearch" placeholder="جستجوی پلاک یا راننده…"><button class="btn" data-act="pick-vehicle-shift" data-need="vehicles.edit">+ ثبت شیفت</button></div>
+        <div class="tw"><table><thead><tr><th>خودرو</th><th>تاریخ</th><th>ساعت شروع</th><th>ساعت پایان</th><th>راننده</th><th>توضیحات</th><th></th></tr></thead><tbody id="vshBody"></tbody></table></div></div>
+    </section>
+    <section data-view="newservice" data-sec="vehicles" class="hidden">
+      <div class="card"><div class="sec">تعریف سرویس جدید</div>
+        <p class="note">ابتدا نوع سرویس را انتخاب کنید؛ سپس فرم شش‌مرحله‌ای ثبت سرویس باز می‌شود.</p>
+        <div class="acts"><button class="btn" data-act="pick-vehicle-service" data-need="vehicles.create">شروع تعریف سرویس</button></div>
+      </div>
+    </section>
+    <section data-view="vservices" data-sec="vehicles" class="hidden">
+      <div class="card"><div class="sec">لیست سرویس‌ها</div>
+        <div class="tw"><table><thead><tr><th>کد</th><th>نام</th><th>تاریخ شروع</th><th>سایت</th><th>واحد نظارت</th><th>ناحیه</th><th>نوع مسیر</th><th>وضعیت رفت و برگشت</th><th>زمان مجاز</th><th>شماره سرویس</th><th>مسیرها</th><th>مسافران</th><th>نرخ خودرو</th><th>نرخ کارفرما</th><th></th></tr></thead><tbody id="spBody"></tbody></table></div></div>
+      <div class="card"><div class="toolbar"><input class="input" id="vsvSearch" placeholder="جستجوی پلاک یا نوع سرویس…"></div>
+        <div class="tw"><table><thead><tr><th>خودرو</th><th>تاریخ</th><th>نوع سرویس</th><th>کیلومتر</th><th>توضیحات</th><th></th></tr></thead><tbody id="vsvBody"></tbody></table></div></div>
+    </section>
+
+    <section data-view="trips" data-sec="vehicles" class="hidden">
+      <div class="card"><div class="toolbar"><input class="input" id="trSearch" placeholder="جستجوی نام سرویس یا کد…"><button class="btn" data-act="add-trip" data-need="vehicles.create">+ ثبت سفر</button></div>
+        <div class="tw"><table><thead><tr><th>سرویس</th><th>کد</th><th>نوع سرویس</th><th>تاریخ سفر</th><th>وضعیت</th></tr></thead><tbody id="trBody"></tbody></table></div></div>
+    </section>
+    <section data-view="tripapproval" data-sec="vehicles" class="hidden">
+      <div class="card"><div class="sec">سفرهای در انتظار تایید</div>
+        <div class="tw"><table><thead><tr><th>سرویس</th><th>کد</th><th>نوع سرویس</th><th>تاریخ سفر</th><th>ثبت‌کننده</th><th></th></tr></thead><tbody id="taBody"></tbody></table></div></div>
+    </section>
+    <section data-view="monitor" data-sec="vehicles" class="hidden">
+      <div class="card"><div class="sec">مانیتورینگ سفر (موقعیت رانندگان)</div>
+        <div class="note" id="mnNote">موقعیت‌ها فقط برای مرزهای ایران نمایش داده می‌شوند.</div>
+        <div class="toolbar"><select class="input" id="mnDriver"></select><button class="btn" data-act="send-location" data-need="vehicles.edit">ثبت موقعیت این دستگاه</button><button class="btn ghost" data-act="refresh-monitor">به‌روزرسانی</button><button class="btn ghost" data-act="show-all-vehicles">نمایش همه خودروها</button><label style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="mnFollow"> دنبال کردن راننده انتخاب‌شده</label><button class="btn" data-act="driver-link" data-need="vehicles.edit">ایجاد لینک ردیابی راننده</button></div>
+        <div id="mnMap" style="height:460px;border-radius:12px;overflow:hidden"></div>
+        <div class="tw"><table><thead><tr><th>راننده</th><th>عرض جغرافیایی</th><th>طول جغرافیایی</th><th>دقت (متر)</th><th>آخرین ثبت</th></tr></thead><tbody id="mnBody"></tbody></table></div></div>
+    </section>
+
+    <section data-view="personnel" data-sec="personnel" class="hidden">
+      <div class="card">
+        <div class="toolbar"><input class="input" id="pSearch" placeholder="جستجوی نام، کد ملی یا شماره پرسنلی…"><select class="input" id="pStatus"></select><button class="btn" data-act="add-person" data-need="personnel.create">+ پرونده جدید</button></div>
+        <div class="note" id="pOwnNote" style="display:none">فقط پرونده مربوط به حساب شما نمایش داده می‌شود.</div>
+        <div class="tw"><table><thead><tr><th>نام و نام خانوادگی</th><th>شماره پرسنلی</th><th>کد ملی</th><th>واحد</th><th>سمت</th><th>وضعیت</th><th></th></tr></thead><tbody id="pBody"></tbody></table></div>
+      </div>
+    </section>
+
+    <section data-view="requests" data-sec="requests" class="hidden">
+      <div class="card"><div class="toolbar"><input class="input" id="rqSearch" placeholder="جستجوی شماره پیگیری، درخواست‌کننده یا مسیر…"><select class="input" id="rqStatus"></select><button class="btn" data-act="add-request" data-need="requests.create">+ ثبت درخواست</button></div>
+        <div class="tw"><table><thead><tr><th>شماره پیگیری</th><th>درخواست‌کننده</th><th>مسیر</th><th>تاریخ</th><th>مسافر</th><th>وضعیت</th><th></th></tr></thead><tbody id="rqBody"></tbody></table></div></div>
+    </section>
+    <section data-view="passengers" data-sec="passengers" class="hidden">
+      <div class="card"><div class="sec">مسافران</div>
+        <div class="toolbar"><input class="input" id="psSearch" placeholder="جستجوی نام یا کد ملی…"><button class="btn" data-act="add-passenger-rec" data-need="passengers.create">+ مسافر جدید</button></div>
+        <div class="tw"><table><thead><tr><th>نام</th><th>کد ملی</th><th>موبایل</th><th>وضعیت</th><th></th></tr></thead><tbody id="psBody"></tbody></table></div></div>
+      <div class="card"><div class="sec">حضور مسافران در سفر</div>
+        <div class="toolbar"><select class="input" id="tpTrip"></select></div>
+        <div class="tw"><table><thead><tr><th>مسافر</th><th>سوار شدن</th><th>پیاده شدن</th><th>وضعیت حضور</th><th></th></tr></thead><tbody id="tpBody"></tbody></table></div>
+        <div class="acts"><button class="btn" data-act="add-trip-passenger" data-need="passengers.edit">+ افزودن مسافر به سفر</button></div></div>
+    </section>
+    <section data-view="finance" data-sec="finance" class="hidden">
+      <div class="card"><div class="sec">خلاصه مالی</div>
+        <div class="toolbar"><div id="fnRange" style="display:flex;gap:8px;flex-wrap:wrap"></div><button class="btn ghost" data-act="fin-refresh">نمایش</button></div>
+        <div class="kpis" id="fnSummary"></div></div>
+      <div class="card"><div class="sec">اسناد درآمد و هزینه</div>
+        <div class="toolbar"><select class="input" id="fnKind"></select><select class="input" id="fnPay"></select><button class="btn" data-act="add-fin" data-need="finance.create">+ ثبت سند</button></div>
+        <div class="tw"><table><thead><tr><th>شماره سند</th><th>نوع</th><th>دسته</th><th>مبلغ (تومان)</th><th>تاریخ</th><th>وضعیت پرداخت</th><th></th></tr></thead><tbody id="fnBody"></tbody></table></div></div>
+      <div class="card"><div class="sec">دسته‌های مالی (تنظیمات اولیه، قابل تغییر)</div>
+        <div class="note">این دسته‌ها تنظیمات اولیه هستند و قوانین رسمی حسابداری شرکت نیستند.</div>
+        <div class="tw"><table><thead><tr><th>نام دسته</th><th>نوع</th><th>وضعیت</th><th></th></tr></thead><tbody id="fcBody"></tbody></table></div>
+        <div class="acts"><button class="btn ghost" data-act="add-fin-cat" data-need="finance.edit">+ دسته جدید</button></div></div>
+    </section>
+
+    <section data-view="leave" data-sec="absences" class="hidden">
+      <div class="card"><div class="sec">تنظیمات مرخصی و مأموریت</div><div class="note" id="lvSetNote"></div>
+        <div id="lvSettings"></div></div>
+      <div class="card"><div class="toolbar"><select class="input" id="lvStatus"></select><button class="btn" data-act="add-leave" data-need="absences.create">+ درخواست مرخصی یا مأموریت</button></div>
+        <div class="note" id="lvOwn" style="display:none">فقط درخواست‌های مربوط به شما نمایش داده می‌شود.</div>
+        <div class="tw"><table><thead><tr><th>پرسنل</th><th>نوع</th><th>از</th><th>تا</th><th>روز</th><th>وضعیت</th><th></th></tr></thead><tbody id="lvBody"></tbody></table></div></div>
+    </section>
+    <section data-view="inbox" class="hidden">
+      <div class="card"><div class="sec">کارتابل من</div><div id="inboxBody" class="kpis"></div></div>
+    </section>
+
+    <section data-view="announcements" data-sec="announcements" class="hidden">
+      <div class="card">
+        <div class="toolbar"><button class="btn" data-act="add-announcement" data-need="announcements.create">+ اعلان جدید</button></div>
+        <div id="annBody"></div>
+      </div>
+    </section>
+
+        <section data-view="tasks" data-sec="tasks" class="hidden">
+      <div class="card">
+        <div class="toolbar" style="flex-wrap:wrap"><input class="input" id="tSearch" placeholder="جستجوی عنوان وظیفه…"><select class="input" id="tStatus"></select><select class="input" id="tPriority"></select><label style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="tOverdue"> فقط عقب‌افتاده</label><button class="btn" data-act="add-task" data-need="tasks.create">+ واگذاری وظیفه</button></div>
+        <div class="tw"><table><thead><tr><th>عنوان</th><th>مسئول انجام</th><th>واگذارکننده</th><th>مهلت</th><th>اولویت</th><th>وضعیت</th><th></th></tr></thead><tbody id="tkBody"></tbody></table></div>
+      </div>
+    </section>
+
+    <section data-view="meetings" data-sec="meetings" class="hidden">
+      <div class="card">
+        <div class="toolbar"><button class="btn" data-act="add-meeting" data-need="meetings.create">+ جلسه جدید</button></div>
+        <div class="tw"><table><thead><tr><th>جلسه</th><th>تاریخ</th><th>ساعت</th><th>محل</th><th>شرکت‌کنندگان</th><th></th></tr></thead><tbody id="mtBody"></tbody></table></div>
+      </div>
+    </section>
+
+    <section data-view="archive" data-sec="archive" class="hidden">
+      <div class="card">
+        <div class="toolbar"><input class="input" id="arSearch" placeholder="جستجوی عنوان یا نام فایل…"><select class="input" id="arCat"><option value="">همه دسته‌ها</option></select><button class="btn" data-act="add-doc" data-need="archive.create">+ بایگانی سند</button></div>
+        <div class="tw"><table><thead><tr><th>عنوان</th><th>دسته</th><th>فایل</th><th>حجم</th><th>بایگانی‌کننده</th><th>تاریخ</th><th></th></tr></thead><tbody id="arBody"></tbody></table></div>
+      </div>
+    </section>
+
+    <section data-view="departments" data-sec="users" class="hidden">
+      <div class="card">
+        <div class="toolbar"><input class="input" id="depSearch" placeholder="جستجوی واحد…"><button class="btn" data-act="add-dept" data-need="users.create">+ واحد جدید</button></div>
+        <div class="tw"><table><thead><tr><th>نام واحد</th><th>تعداد کاربران</th></tr></thead><tbody id="depBody"></tbody></table></div>
+      </div>
+    </section>
+
+    <section data-view="letters" data-sec="letters" class="hidden">
+      <div class="card">
+        <div class="chips" id="ltabs">
+          <button class="btn ghost sm on" data-act="ltab" data-v="inbox">دریافتی</button>
+          <button class="btn ghost sm" data-act="ltab" data-v="outbox">ارسالی</button>
+          <button class="btn ghost sm" data-act="ltab" data-v="all">همه نامه‌های من</button>
+          <button class="btn ghost sm" data-act="ltab" data-v="everyone" id="ltabEveryone" style="display:none">همه نامه‌ها (مدیر اصلی)</button>
+        </div>
+        <div class="toolbar"><input class="input" id="lSearch" placeholder="جستجو: شماره یا موضوع نامه…">
+        <div class="toolbar" id="lFilters" style="flex-wrap:wrap">
+          <select class="input" id="lfStatus"></select><select class="input" id="lfClass"></select>
+          <input class="input" id="lfSender" placeholder="فرستنده یا طرف بیرونی"><input class="input" id="lfRecipient" placeholder="گیرنده">
+          <div id="lfDates" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+        </div><button class="btn" data-act="add-letter" data-need="letters.create">+ نامه جدید</button></div>
+        <div class="tw"><table><thead><tr><th>شماره</th><th>موضوع</th><th>فرستنده</th><th>گیرنده فعلی</th><th>وضعیت</th><th>آخرین تغییر</th><th></th></tr></thead><tbody id="lBody"></tbody></table></div>
+      </div>
+    </section>
+
+    <section data-view="settings" data-sec="users" class="hidden">
+      <div class="card">
+        <div class="sec">مدت بی‌فعالیتی نشست</div>
+        <p class="note">اگر کاربر به مدت این تعداد دقیقه هیچ کاری در سایت انجام ندهد، نشست او بسته می‌شود. مقدار مجاز بین ۱ تا ۱۴۴۰ دقیقه است.</p>
+        <div class="row2">
+          <div class="field"><label for="st-min">مدت بی‌فعالیتی (دقیقه)</label><input class="input" id="st-min" inputmode="numeric" placeholder="مثلاً ۲"><div class="err" id="st-min-e"></div></div>
+        </div>
+        <div class="acts"><button class="btn" data-act="save-session-timeout" data-need="users.edit">ذخیره</button></div>
+        <p class="note" id="st-current"></p>
+      </div>
+    </section>
+
+    <section data-view="users" class="hidden">
+      <div class="card">
+        <div class="toolbar"><input class="input" id="uSearch" placeholder="جستجوی کاربر…"><button class="btn" data-act="add-user" data-need="users.create">+ کاربر جدید</button></div>
+        <div class="tw"><table><thead><tr><th>نام کاربری</th><th>نام</th><th>واحد</th><th>نقش</th><th>وضعیت</th><th></th></tr></thead><tbody id="uBody"></tbody></table></div>
+</div>
+    </section>
+
+    <section data-view="reports" class="hidden">
+      <div class="chips" id="rTabs">
+      <div id="rExport" class="card" style="display:none;margin:10px 0"><div class="sec">خروجی گزارش (CSV، قابل باز شدن در Excel)</div><div class="toolbar" id="xpBar"></div><div class="note">خروجی فقط شامل داده‌هایی است که مجوز مشاهده آن‌ها را دارید.</div></div>
+        <button class="btn ghost sm on" data-act="rtab" data-v="activity">تاریخچه فعالیت</button>
+        <button class="btn ghost sm" data-act="rtab" data-v="exports">خروجی گزارش‌ها</button>
+        <button class="btn ghost sm" data-act="rtab" data-v="companies">شرکت‌ها</button>
+        <button class="btn ghost sm" data-act="rtab" data-v="contracts">قراردادها</button>
+        <button class="btn ghost sm" data-act="rtab" data-v="users">کاربران</button>
+      </div>
+      <div class="card">
+        <div class="toolbar" id="rFilters">
+          <input class="input" id="rq" placeholder="جستجو…">
+          <select class="input" id="rUser" data-rf="activity"></select>
+          <select class="input" id="rSec" data-rf="activity"></select>
+          <select class="input" id="rAct" data-rf="activity"><option value="">همه عملیات‌ها</option><option value="create">ایجاد</option><option value="update">ویرایش</option><option value="delete">حذف</option><option value="login">ورود</option><option value="logout">خروج</option><option value="login_failed">ورود ناموفق</option></select>
+          <select class="input" id="rOut" data-rf="activity"><option value="">همه نتایج</option><option>موفق</option><option>ناموفق</option></select>
+          <select class="input" id="rStatus" data-rf="contracts"><option value="">همه وضعیت‌ها</option><option>فعال</option><option>نزدیک انقضا</option><option>منقضی</option></select>
+          <select class="input" id="rProv" data-rf="companies"><option value="">همه استان‌ها</option></select>
+          <select class="input" id="rCity" data-rf="companies"><option value="">همه شهرها</option></select>
+          <div id="rDates" style="display:flex;gap:8px"></div>
+          <button class="btn ghost" id="rCsv" data-act="csv">خروجی CSV</button>
+        </div>
+        <div class="tw"><table><thead id="rHead"></thead><tbody id="rBody"></tbody></table></div>
+        <div class="pager" id="rPager"></div>
+      </div>
+    </section>
+
+    <section data-view="profile" class="hidden">
+      <div class="card" style="max-width:520px">
+        <div class="field"><label>نام کاربری</label><input class="input" id="pUser" disabled></div>
+        <div class="field"><label for="pName">نام نمایشی</label><input class="input" id="pName"><div class="err" id="pName-e"></div></div>
+        <div class="field"><label>نقش</label><input class="input" id="pRole" disabled></div>
+        <div class="acts"><button class="btn" id="pSave">ذخیره</button></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div id="dp" class="hidden"></div>
+<div id="modal" class="modal hidden"></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<link rel="stylesheet" href="https://static.neshan.org/sdk/leaflet/1.4.0/leaflet.css">
+<script src="/config.js"></script>
+<script src="https://static.neshan.org/sdk/leaflet/1.4.0/leaflet.js" onerror="window.MISTA_NESHAN_LOAD_FAILED=true"></script>
+<script src="/app.js?v=20261011b"></script>
+</body>
+</html>
